@@ -1,26 +1,19 @@
 <template lang="pug">
     div.todo
-      pre {{todos}}
-        todoInput(
-          @addTodo="addTodo"
-        )
-        todoList(
-          v-if = "todos.length > 0"
-          :todos = "filteredTodos"
-          @removeTodo = "removeTodo"
-          @checkTodo = "checkTodo"
-          @filterTodos = "filterTodos"
-        )
+      todoInput
+      todoList(
+        v-if = "todos.length > 0"
+        :todos = "filteredTodos"
+      )
 </template>
 
 <script>
 import todoList from './todoList'
 import todoInput from './todoInput'
+import { mapState, mapActions } from 'vuex'
 export default {
   data () {
     return {
-      todos: [],
-      filter: 'all'
     }
   },
   components: {
@@ -28,6 +21,10 @@ export default {
     todoInput
   },
   computed: {
+    ...mapState({
+      todos: state => state.todos.todos,
+      filter: state => state.todos.filter
+    }),
     filteredTodos () {
       switch (this.filter) {
         case 'all' :
@@ -39,23 +36,11 @@ export default {
       }
     }
   },
+  mounted () {
+    this.fetchItems()
+  },
   methods: {
-    addTodo (todo) {
-      this.todos.push(todo)
-    },
-    removeTodo (todoId) {
-      this.todos = this.todos.filter(item => {
-        return item.id !== todoId
-      })
-    },
-    checkTodo (todo) {
-      this.todos = this.todos.map(item => (
-        item.id === todo.id ? todo : item
-      ))
-    },
-    filterTodos (filter) {
-      this.filter = filter
-    }
+    ...mapActions(['fetchItems'])
   }
 }
 </script>
